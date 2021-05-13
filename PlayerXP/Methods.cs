@@ -12,7 +12,7 @@ namespace PlayerXP
 	}
 	public class Methods
 	{
-		internal static string StatFilePath = Path.Combine(Qurre.PluginManager.QurreDirectory, "PlayerXP");
+		internal static string StatFilePath = Path.Combine(Qurre.PluginManager.PluginsDirectory, "PlayerXP");
 		public static Stats LoadStats(string userId)
 		{
 			string path = Path.Combine(StatFilePath, $"{userId}.txt");

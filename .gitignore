@@ -2,7 +2,7 @@
 .vs/PlayerXP/v16/.suo
 *.p7s
 packages/Qurre.1.3.9/content/qurre_ol.ico
-PlayerXP/bin/Debug/*.dll
-PlayerXP/bin/Debug/PlayerXP.pdb
+PlayerXP/bin/*
+PlayerXP/obj/*
 packages/Qurre.1.3.9/Qurre.1.3.9.nupkg
 packages/Qurre.1.3.9/LICENSE.txt
