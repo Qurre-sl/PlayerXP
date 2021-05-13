@@ -1,4 +1,4 @@
-# SCPDiscordLogs
+# PlayerXP
 ##### Motivate players to play on your server with levels
 ## Installation
 * Move `scp2818.dll` into the `~/.config`(`%AppData%` on Windows)`/Qurre/Plugins`
