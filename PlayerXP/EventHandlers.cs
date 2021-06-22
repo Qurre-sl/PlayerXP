@@ -11,26 +11,24 @@ namespace PlayerXP
 		public Dictionary<string, Stats> Stats = new Dictionary<string, Stats>();
 		private Regex regexSmartSiteReplacer => new Regex(@"#" + Cfg.Pn);
 		public void Waiting()
-        {
+		{
 			Cfg.Reload();
 			Stats.Clear();
 		}
-		public void RoundEnd(RoundEndEvent ev){try{foreach (Stats stats in Stats.Values) Methods.SaveStats(stats);}catch { }}
+		public void RoundEnd(RoundEndEvent ev) { try { foreach (Stats stats in Stats.Values) Methods.SaveStats(stats); } catch { } }
 
 		public void Join(JoinEvent ev)
 		{
 			Timing.CallDelayed(100f, () => ev.Player.Broadcast(15, Cfg.Jm));
 			if (string.IsNullOrEmpty(ev.Player.UserId) || ev.Player.IsHost || ev.Player.Nickname == "Dedicated Server") return;
-
-			if (!Stats.ContainsKey(ev.Player.UserId))
-				Stats.Add(ev.Player.UserId, Methods.LoadStats(ev.Player.UserId));
-			Timing.CallDelayed(1.5f, () => addp(ev.Player));
+			if (!Stats.ContainsKey(ev.Player.UserId)) Stats.Add(ev.Player.UserId, Methods.LoadStats(ev.Player.UserId));
+			Timing.CallDelayed(1.5f, () => SetPrefix(ev.Player));
 		}
 		public void Spawn(RoleChangeEvent ev)
 		{
 			if (string.IsNullOrEmpty(ev.Player.UserId) || ev.Player.IsHost || ev.Player.Nickname == "Dedicated Server") return;
 			if (!Stats.ContainsKey(ev.Player.UserId)) Stats.Add(ev.Player.UserId, Methods.LoadStats(ev.Player.UserId));
-			Timing.CallDelayed(1.5f, () => addp(ev.Player));
+			Timing.CallDelayed(1.5f, () => SetPrefix(ev.Player));
 		}
 		public void AddXP(Player player)
 		{
@@ -43,10 +41,10 @@ namespace PlayerXP
 				player.Broadcast(10, Cfg.Lvlup.Replace("%lvl%", $"{Stats[player.UserId].lvl}").Replace("%to.xp%", ((Stats[player.UserId].to) - Stats[player.UserId].xp).ToString()));
 				Methods.SaveStats(Stats[player.UserId]);
 
-				addp(player);
+				SetPrefix(player);
 			}
 		}
-		public void addp(Player player)
+		public void SetPrefix(Player player)
 		{
 			string color = "red";
 			var imain = Stats[player.UserId];
@@ -81,311 +79,125 @@ namespace PlayerXP
 		}
 		public void Escape(EscapeEvent ev)
 		{
-			Stats[ev.Player.UserId].xp += 100;
-			AddXP(ev.Player);
-			string nick = ev.Player?.Nickname;
-			MatchCollection matches = regexSmartSiteReplacer.Matches(nick);
-			if (matches.Count > 0)
+			if (ev.Allowed)
 			{
-				Stats[ev.Player.UserId].xp += 100;
-				AddXP(ev.Player);
-				ev.Player.Broadcast(10, Cfg.Eb.Replace("%xp%", "200"), true);
-			}
-			else ev.Player.Broadcast(10, Cfg.Eb.Replace("%xp%", "100"), true);
-		}
-		public void Dies(DiesEvent ev)
-		{
-			if (!ev.Allowed) return;
-			Player target = ev.Target;
-			Player killer = ev.Killer;
-			string targetname = ev.Target?.Nickname;
-			addp(target);
-			if (target == null || string.IsNullOrEmpty(target.UserId)) return;
-			if (killer == null || string.IsNullOrEmpty(killer.UserId)) return;
-			if (Stats.ContainsKey(killer.UserId))
-			{
-				string nick = ev.Killer?.Nickname;
-				MatchCollection matches = regexSmartSiteReplacer.Matches(nick);
-				if (matches.Count > 0)
+				try
 				{
-					if (killer != target)
-					{
-						ev.Killer.ClearBroadcasts();
-						if (killer.Team == Team.CHI)
-						{
-							if (target.Team == Team.MTF)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.RSC)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 150;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "150").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.TUT)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.TUT)
-						{
-							if (target.Team == Team.CDP)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.RSC)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.MTF)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.CHI)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 20;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "20").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.RSC)
-						{
-							if (target.Team == Team.CDP)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.CHI)
-							{
-								Stats[killer.UserId].xp += 200;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "200").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.TUT)
-							{
-								Stats[killer.UserId].xp += 200;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "200").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 400;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "400").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.CDP)
-						{
-							if (target.Team == Team.RSC)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.MTF)
-							{
-								Stats[killer.UserId].xp += 200;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "200").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 400;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "400").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.TUT)
-							{
-								Stats[killer.UserId].xp += 200;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "200").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.SCP)
-						{
-							Stats[killer.UserId].xp += 50;
-							AddXP(killer);
-							ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-						}
-					}
+					int LvlUp = 100;
+					if (regexSmartSiteReplacer.Matches(ev.Player?.Nickname.ToLower()).Count > 0) LvlUp *= 2;
+					ev.Player.Broadcast(10, Cfg.Eb.Replace("%xp%", $"{LvlUp}"), true);
+					Stats[ev.Player.UserId].xp += LvlUp;
+					AddXP(ev.Player);
 				}
-				else
-				{
-					if (killer != target)
-					{
-						ev.Killer.ClearBroadcasts();
-						if (killer.Team == Team.CHI)
-						{
-							if (target.Team == Team.MTF)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.RSC)
-							{
-								Stats[killer.UserId].xp += 25;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "25").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 75;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "75").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.TUT)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.TUT)
-						{
-							if (target.Team == Team.CDP)
-							{
-								Stats[killer.UserId].xp += 25;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "25").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.RSC)
-							{
-								Stats[killer.UserId].xp += 25;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "25").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.MTF)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.CHI)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 10;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "10").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.RSC)
-						{
-							if (target.Team == Team.CDP)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.CHI)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.TUT)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 200;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "200").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.CDP)
-						{
-							if (target.Team == Team.RSC)
-							{
-								Stats[killer.UserId].xp += 50;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.MTF)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.SCP)
-							{
-								Stats[killer.UserId].xp += 200;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "200").Replace("%player%", $"{targetname}"), true);
-							}
-							else if (target.Team == Team.TUT)
-							{
-								Stats[killer.UserId].xp += 100;
-								AddXP(killer);
-								ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "100").Replace("%player%", $"{targetname}"), true);
-							}
-						}
-						else if (killer.Team == Team.SCP)
-						{
-							Stats[killer.UserId].xp += 25;
-							AddXP(killer);
-							ev.Killer.Broadcast(10, Cfg.Kb.Replace("%xp%", "25").Replace("%player%", $"{targetname}"), true);
-						}
-					}
-				}
+				catch { }
 			}
 		}
 		public void PocketDead(PocketDimensionFailEscapeEvent ev)
 		{
-			Player scp106 = Player.List.Where(x => x.Role == RoleType.Scp106).FirstOrDefault();
-			Stats[scp106.UserId].xp += 25;
-			AddXP(scp106);
-			string nick = scp106?.Nickname;
-			MatchCollection matches = regexSmartSiteReplacer.Matches(nick);
-			if (matches.Count > 0)
+			try
 			{
-				Stats[scp106.UserId].xp += 25;
-				AddXP(scp106);
-				scp106.Broadcast(10, Cfg.Kb.Replace("%xp%", "50").Replace("%player%", $"{ev.Player?.Nickname}"), true);
+				if (ev.Allowed)
+				{
+					var list = Player.List.Where(x => x.Role == RoleType.Scp106).ToList();
+					if (list.Count == 0) return;
+					Player scp106 = list.FirstOrDefault();
+					int LvlUp = 25;
+					if (regexSmartSiteReplacer.Matches(scp106?.Nickname.ToLower()).Count > 0) LvlUp *= 2;
+					scp106.Broadcast(10, Cfg.Kb.Replace("%xp%", $"{LvlUp}").Replace("%player%", $"{ev.Player?.Nickname}"), true);
+					Stats[scp106.UserId].xp += LvlUp;
+					AddXP(scp106);
+				}
 			}
-			else scp106.Broadcast(10, Cfg.Kb.Replace("%xp%", "25").Replace("%player%", $"{ev.Player?.Nickname}"), true);
+			catch { }
+		}
+		public void Dies(DiesEvent ev)
+		{
+			try
+			{
+				Player target = ev.Target;
+				Player killer = ev.Killer;
+				string targetname = ev.Target?.Nickname;
+				try { SetPrefix(ev.Target); } catch { }
+				if (target == null || string.IsNullOrEmpty(target.UserId)) return;
+				if (killer == null || string.IsNullOrEmpty(killer.UserId)) return;
+				int LvlUp = 0;
+				if (killer.Id == target.Id) return;
+				if (killer.Team == Team.CHI)
+				{
+					if (target.Team == Team.MTF)
+						LvlUp += 50;
+					else if (target.Team == Team.RSC)
+						LvlUp += 25;
+					else if (target.Team == Team.SCP)
+						LvlUp += 250;
+					else if (target.Team == Team.TUT)
+						LvlUp += 50;
+				}
+				else if (killer.Team == Team.MTF)
+				{
+					if (target.Team == Team.CHI)
+						LvlUp += 50;
+					else if (target.Team == Team.CDP)
+						LvlUp += 25;
+					else if (target.Team == Team.SCP)
+						LvlUp += 250;
+					else if (target.Team == Team.TUT)
+						LvlUp += 50;
+				}
+				else if (killer.Team == Team.TUT)
+				{
+					if (target.Team == Team.CDP)
+						LvlUp += 25;
+					else if (target.Team == Team.RSC)
+						LvlUp += 25;
+					else if (target.Team == Team.MTF)
+						LvlUp += 50;
+					else if (target.Team == Team.CHI)
+						LvlUp += 50;
+					else if (target.Team == Team.SCP)
+						LvlUp += 10;
+				}
+				else if (killer.Team == Team.RSC)
+				{
+					if (target.Team == Team.CDP)
+						LvlUp += 25;
+					else if (target.Team == Team.CHI)
+						LvlUp += 100;
+					else if (target.Team == Team.TUT)
+						LvlUp += 100;
+					else if (target.Team == Team.SCP)
+						LvlUp += 500;
+				}
+				else if (killer.Team == Team.CDP)
+				{
+					if (target.Team == Team.RSC)
+						LvlUp += 25;
+					else if (target.Team == Team.MTF)
+						LvlUp += 100;
+					else if (target.Team == Team.TUT)
+						LvlUp += 100;
+					else if (target.Team == Team.SCP)
+						LvlUp += 500;
+				}
+				else if (killer.Team == Team.SCP)
+				{
+					LvlUp += 25;
+				}
+				string nick = ev.Killer?.Nickname.ToLower();
+				MatchCollection matches = regexSmartSiteReplacer.Matches(nick);
+				if (matches.Count > 0)
+				{
+					LvlUp *= 2;
+				}
+				killer.Broadcast(10, Cfg.Kb.Replace("%xp%", $"{LvlUp}").Replace("%player%", $"{targetname}"), true);
+				Stats[killer.UserId].xp += LvlUp;
+				AddXP(killer);
+			}
+			catch { }
 		}
 		public void Console(SendingConsoleEvent ev)
 		{
-			string cmd = ev.Name.ToLower();
-			if (cmd.StartsWith("xp"))
-			{
-				ev.ReturnMessage = "\n----------------------------------------------------------- \nXP:\n" + Stats[ev.Player.UserId].xp + "/" + Stats[ev.Player.UserId].to + "\nlvl:\n" + Stats[ev.Player.UserId].lvl + "\n -----------------------------------------------------------";
-				ev.Color = "red";
-			}
-			if (cmd.StartsWith("lvl"))
+			if (ev.Name == "xp" || ev.Name == "lvl")
 			{
 				ev.ReturnMessage = "\n----------------------------------------------------------- \nXP:\n" + Stats[ev.Player.UserId].xp + "/" + Stats[ev.Player.UserId].to + "\nlvl:\n" + Stats[ev.Player.UserId].lvl + "\n -----------------------------------------------------------";
 				ev.Color = "red";
