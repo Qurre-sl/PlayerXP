@@ -8,7 +8,7 @@ namespace PlayerXP
 {
 	public class EventHandlers
 	{
-		public Dictionary<string, Stats> Stats = new Dictionary<string, Stats>();
+		public static Dictionary<string, Stats> Stats = new Dictionary<string, Stats>();
 		private Regex regexSmartSiteReplacer => new Regex(@"#" + Cfg.Pn);
 		public void Waiting()
 		{
@@ -22,13 +22,13 @@ namespace PlayerXP
 			Timing.CallDelayed(100f, () => ev.Player.Broadcast(15, Cfg.Jm));
 			if (string.IsNullOrEmpty(ev.Player.UserId) || ev.Player.IsHost || ev.Player.Nickname == "Dedicated Server") return;
 			if (!Stats.ContainsKey(ev.Player.UserId)) Stats.Add(ev.Player.UserId, Methods.LoadStats(ev.Player.UserId));
-			Timing.CallDelayed(1.5f, () => SetPrefix(ev.Player));
+			Timing.CallDelayed(0.5f, () => SetPrefix(ev.Player));
 		}
 		public void Spawn(RoleChangeEvent ev)
 		{
 			if (string.IsNullOrEmpty(ev.Player.UserId) || ev.Player.IsHost || ev.Player.Nickname == "Dedicated Server") return;
 			if (!Stats.ContainsKey(ev.Player.UserId)) Stats.Add(ev.Player.UserId, Methods.LoadStats(ev.Player.UserId));
-			Timing.CallDelayed(1.5f, () => SetPrefix(ev.Player));
+			Timing.CallDelayed(0.5f, () => SetPrefix(ev.Player));
 		}
 		public void AddXP(Player player)
 		{
@@ -51,6 +51,7 @@ namespace PlayerXP
 			int lvl = imain.lvl;
 			string prefix = lvl.Prefix();
 			string pref = $"{lvl} {Cfg.Lvl}{prefix}";
+			if (player.RoleName.Contains(pref)) return;
 			try
 			{
 				if (lvl == 1) color = "green";

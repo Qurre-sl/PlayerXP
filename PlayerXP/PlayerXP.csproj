@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\lib\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\lib\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -63,14 +66,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cfg.cs" />
+    <Compile Include="0Harmony.cs" />
     <Compile Include="Methods.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="EventHandlers.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="qurre_ol.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
