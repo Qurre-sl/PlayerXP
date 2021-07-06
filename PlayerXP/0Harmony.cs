@@ -10,7 +10,7 @@ namespace PlayerXP
         {
             Player pl = Player.List.Where(x => x.ServerRoles == __instance).FirstOrDefault();
             if (pl == null) return;
-            var imain = EventHandlers.Stats[pl.UserId];
+            if (!EventHandlers.Stats.TryGetValue(pl.UserId, out Stats imain)) return;
             int lvl = imain.lvl;
             string pref = $"{lvl} {Cfg.Lvl}";
             string admin = "";
@@ -29,7 +29,7 @@ namespace PlayerXP
             {
                 Player pl = Player.List.Where(x => x.ServerRoles == __instance).FirstOrDefault();
                 if (pl == null) return;
-                var imain = EventHandlers.Stats[pl.UserId];
+                if (!EventHandlers.Stats.TryGetValue(pl.UserId, out Stats imain)) return;
                 int lvl = imain.lvl;
                 string color = i;
                 if (lvl == 1) color = "green";
