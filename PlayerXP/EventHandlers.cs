@@ -51,7 +51,7 @@ namespace PlayerXP
 			int lvl = imain.lvl;
 			string prefix = lvl.Prefix();
 			string pref = $"{lvl} {Cfg.Lvl}{prefix}";
-			if (player.RoleName.Contains(pref)) return;
+			if (player.RoleName != null && player.RoleName.Contains(pref)) return;
 			try
 			{
 				if (lvl == 1) color = "green";

@@ -4,9 +4,9 @@ using System.Linq;
 namespace PlayerXP
 {
     [HarmonyPatch(typeof(ServerRoles), "SetText")]
-    public class PrefixText
+    internal class PrefixText
     {
-        private static void Prefix(ServerRoles __instance, ref string i)
+        internal static void Prefix(ServerRoles __instance, ref string i)
         {
             Player pl = Player.List.Where(x => x.ServerRoles == __instance).FirstOrDefault();
             if (pl == null) return;
@@ -21,9 +21,9 @@ namespace PlayerXP
         }
     }
     [HarmonyPatch(typeof(ServerRoles), "SetColor")]
-    public class PrefixColor
+    internal class PrefixColor
     {
-        private static void Prefix(ServerRoles __instance, ref string i)
+        internal static void Prefix(ServerRoles __instance, ref string i)
         {
             if (i == "default")
             {
