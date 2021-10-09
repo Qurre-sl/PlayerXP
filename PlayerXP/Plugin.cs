@@ -9,8 +9,8 @@ namespace PlayerXP
         public override int Priority { get; } = -9999999;
         public override string Developer { get; } = "fydne";
         public override string Name { get; } = "PlayerXP";
-        public override Version Version { get; } = new Version(1, 1, 6);
-        public override Version NeededQurreVersion { get; } = new Version(1, 8, 3);
+        public override Version Version { get; } = new Version(1, 1, 7);
+        public override Version NeededQurreVersion { get; } = new Version(1, 9, 0);
         public override void Enable() => RegisterEvents();
         public override void Disable() => UnregisterEvents();
         private Harmony hInstance;
@@ -21,7 +21,7 @@ namespace PlayerXP
         {
             Cfg.Reload();
             EventHandlers = new EventHandlers();
-            Qurre.Events.Round.WaitingForPlayers += EventHandlers.Waiting;
+            Qurre.Events.Round.Waiting += EventHandlers.Waiting;
             Qurre.Events.Round.End += EventHandlers.RoundEnd;
             Qurre.Events.Server.SendingConsole += EventHandlers.Console;
 
@@ -29,14 +29,14 @@ namespace PlayerXP
             Qurre.Events.Player.RoleChange += EventHandlers.Spawn;
             Qurre.Events.Player.Escape += EventHandlers.Escape;
             Qurre.Events.Player.Dies += EventHandlers.Dies;
-            Qurre.Events.Scp106.PocketDimensionFailEscape += EventHandlers.PocketDead;
+            Qurre.Events.Scp106.PocketFailEscape += EventHandlers.PocketDead;
             if (!Directory.Exists(Methods.StatFilePath)) Directory.CreateDirectory(Methods.StatFilePath);
             hInstance = new Harmony("fydne.playerxp");
             hInstance.PatchAll();
         }
         private void UnregisterEvents()
         {
-            Qurre.Events.Round.WaitingForPlayers -= EventHandlers.Waiting;
+            Qurre.Events.Round.Waiting -= EventHandlers.Waiting;
             Qurre.Events.Round.End -= EventHandlers.RoundEnd;
             Qurre.Events.Server.SendingConsole -= EventHandlers.Console;
 
@@ -44,7 +44,7 @@ namespace PlayerXP
             Qurre.Events.Player.RoleChange -= EventHandlers.Spawn;
             Qurre.Events.Player.Escape -= EventHandlers.Escape;
             Qurre.Events.Player.Dies -= EventHandlers.Dies;
-            Qurre.Events.Scp106.PocketDimensionFailEscape -= EventHandlers.PocketDead;
+            Qurre.Events.Scp106.PocketFailEscape -= EventHandlers.PocketDead;
             EventHandlers = null;
             hInstance.UnpatchAll(null);
         }

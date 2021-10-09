@@ -93,7 +93,7 @@ namespace PlayerXP
 				catch { }
 			}
 		}
-		public void PocketDead(PocketDimensionFailEscapeEvent ev)
+		public void PocketDead(PocketFailEscapeEvent ev)
 		{
 			try
 			{
