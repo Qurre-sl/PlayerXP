@@ -9,8 +9,8 @@ namespace PlayerXP
         public override int Priority { get; } = -9999999;
         public override string Developer { get; } = "fydne";
         public override string Name { get; } = "PlayerXP";
-        public override Version Version { get; } = new Version(1, 1, 7);
-        public override Version NeededQurreVersion { get; } = new Version(1, 9, 0);
+        public override Version Version { get; } = new Version(1, 1, 8);
+        public override Version NeededQurreVersion { get; } = new Version(1, 10, 0);
         public override void Enable() => RegisterEvents();
         public override void Disable() => UnregisterEvents();
         private Harmony hInstance;
