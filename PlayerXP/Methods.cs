@@ -9,6 +9,7 @@ namespace PlayerXP
 		public int lvl;
 		public int xp;
 		public int to;
+		public bool anonymous;
 	}
 	public class Methods
 	{

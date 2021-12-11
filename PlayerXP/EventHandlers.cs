@@ -8,8 +8,10 @@ namespace PlayerXP
 {
 	public class EventHandlers
 	{
+		public static EventHandlers Static { get; private set; }
+		internal EventHandlers() => Static = this;
 		public static Dictionary<string, Stats> Stats = new Dictionary<string, Stats>();
-		private Regex regexSmartSiteReplacer => new Regex(@"#" + Cfg.Pn);
+		private Regex RegexSmartSiteReplacer => new Regex(@"#" + Cfg.Pn);
 		public void Waiting()
 		{
 			Cfg.Reload();
@@ -46,8 +48,8 @@ namespace PlayerXP
 		}
 		public void SetPrefix(Player player)
 		{
+			if (!Stats.TryGetValue(player.UserId, out Stats imain)) return;
 			string color = "red";
-			var imain = Stats[player.UserId];
 			int lvl = imain.lvl;
 			string prefix = lvl.Prefix();
 			string pref = $"{lvl} {Cfg.Lvl}{prefix}";
@@ -75,7 +77,7 @@ namespace PlayerXP
 				else if (lvl >= 100) color = "red";
 			}
 			catch { }
-			if (player.Adminsearch()) player.SetRank($"{player.Group.BadgeText} | {pref}", player.Group.BadgeColor);
+			if (!imain.anonymous && player.Adminsearch()) player.SetRank($"{player.Group.BadgeText} | {pref}", player.Group.BadgeColor);
 			else player.SetRank(pref, color);
 		}
 		public void Escape(EscapeEvent ev)
@@ -85,7 +87,7 @@ namespace PlayerXP
 				try
 				{
 					int LvlUp = 100;
-					if (regexSmartSiteReplacer.Matches(ev.Player?.Nickname.ToLower()).Count > 0) LvlUp *= 2;
+					if (RegexSmartSiteReplacer.Matches(ev.Player?.Nickname.ToLower()).Count > 0) LvlUp *= 2;
 					ev.Player.Broadcast(10, Cfg.Eb.Replace("%xp%", $"{LvlUp}"), true);
 					Stats[ev.Player.UserId].xp += LvlUp;
 					AddXP(ev.Player);
@@ -103,7 +105,7 @@ namespace PlayerXP
 					if (list.Count == 0) return;
 					Player scp106 = list.FirstOrDefault();
 					int LvlUp = 25;
-					if (regexSmartSiteReplacer.Matches(scp106?.Nickname.ToLower()).Count > 0) LvlUp *= 2;
+					if (RegexSmartSiteReplacer.Matches(scp106?.Nickname.ToLower()).Count > 0) LvlUp *= 2;
 					scp106.Broadcast(10, Cfg.Kb.Replace("%xp%", $"{LvlUp}").Replace("%player%", $"{ev.Player?.Nickname}"), true);
 					Stats[scp106.UserId].xp += LvlUp;
 					AddXP(scp106);
@@ -185,7 +187,7 @@ namespace PlayerXP
 					LvlUp += 25;
 				}
 				string nick = ev.Killer?.Nickname.ToLower();
-				MatchCollection matches = regexSmartSiteReplacer.Matches(nick);
+				MatchCollection matches = RegexSmartSiteReplacer.Matches(nick);
 				if (matches.Count > 0)
 				{
 					LvlUp *= 2;

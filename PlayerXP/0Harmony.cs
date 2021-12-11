@@ -4,7 +4,7 @@ using System.Linq;
 namespace PlayerXP
 {
     [HarmonyPatch(typeof(ServerRoles), "SetText")]
-    internal class PrefixText
+    internal static class PrefixText
     {
         internal static void Prefix(ServerRoles __instance, ref string i)
         {
@@ -21,7 +21,7 @@ namespace PlayerXP
         }
     }
     [HarmonyPatch(typeof(ServerRoles), "SetColor")]
-    internal class PrefixColor
+    internal static class PrefixColor
     {
         internal static void Prefix(ServerRoles __instance, ref string i)
         {
@@ -53,6 +53,57 @@ namespace PlayerXP
                 else if (lvl >= 100) color = "red";
                 i = color;
             }
+        }
+    }
+    [HarmonyPatch(typeof(CharacterClassManager), nameof(CharacterClassManager.UserCode_CmdRequestHideTag))]
+    internal static class HideTagPatch
+    {
+        private static bool Prefix(CharacterClassManager __instance)
+        {
+            if (__instance.UserId.Contains("@northwood")) return true;
+            try
+            {
+                var pl = Player.Get(__instance.UserId);
+                if (pl.ServerRoles.NetworkGlobalBadge != "")
+                {
+                    pl.ServerRoles.NetworkGlobalBadge = "";
+                    EventHandlers.Static.SetPrefix(pl);
+                    pl.SendConsoleMessage("Успешно", "green");
+                }
+                else
+                {
+                    if (!EventHandlers.Stats.TryGetValue(pl.UserId, out Stats data)) return true;
+                    data.anonymous = true;
+                    EventHandlers.Static.SetPrefix(pl);
+                    pl.SendConsoleMessage("Успешно", "green");
+                }
+            }
+            catch
+            {
+                __instance.TargetConsolePrint(__instance.connectionToClient, "Зачем тебе убирать префикс?", "green");
+            }
+            return false;
+        }
+    }
+    [HarmonyPatch(typeof(CharacterClassManager), nameof(CharacterClassManager.UserCode_CmdRequestShowTag))]
+    internal static class ShowTagPatch
+    {
+        private static bool Prefix(CharacterClassManager __instance)
+        {
+            if (__instance.UserId.Contains("@northwood")) return true;
+            try
+            {
+                var pl = Player.Get(__instance.UserId);
+                if (!EventHandlers.Stats.TryGetValue(pl.UserId, out Stats data)) return true;
+                data.anonymous = false;
+                EventHandlers.Static.SetPrefix(pl);
+                pl.SendConsoleMessage("Успешно", "green");
+            }
+            catch
+            {
+                __instance.TargetConsolePrint(__instance.connectionToClient, "Зачем тебе это?", "green");
+            }
+            return false;
         }
     }
 }
